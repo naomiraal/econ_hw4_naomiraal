@@ -7,7 +7,7 @@ output:
     theme: cerulean
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE, mesage=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(here)
@@ -61,29 +61,31 @@ ggplot(data = warming, aes(year, damage_baseline)) +
 2. damages in each year under baseline + pulse climate scenario
 ```{r}
 warming$damage_pulse <- quad_function(warming$warming_pulse)
-warming$damage_baseline_pulse <- warming$damage_baseline + warming$damage_pulse
 ```
-
-```{r}
-# visualize function and scatterplot graph
-ggplot(data = warming, aes(year, damage_baseline_pulse)) + 
-  geom_point(size = 0.8) + 
-  theme_gray() +
-  labs(title = "Damages under baseline with pulse", x = "time", y = "Annual Damages in USD")
-```
-3. damages in each year under pulse climate scenario
 
 ```{r}
 # visualize function and scatterplot graph
 ggplot(data = warming, aes(year, damage_pulse)) + 
   geom_point(size = 0.8) + 
   theme_gray() +
-  labs(title = "Damages under pulse", x = "time", y = "Annual Damages in USD")
+  labs(title = "Damages under baseline with pulse", x = "time", y = "Annual Damages in USD")
+```
+3. damages in each year under pulse alone climate scenario
+```{r}
+warming$damage_pulse_no_baseline <- warming$damage_pulse-warming$damage_baseline
+```
+
+```{r}
+# visualize function and scatterplot graph
+ggplot(data = warming, aes(year, damage_pulse_no_baseline)) + 
+  geom_point(size = 0.8) + 
+  theme_gray() +
+  labs(title = "Damages under pulse alone (no baseline)", x = "time", y = "Annual Damages in USD")
 ```
 4. damages per ton of CO2
 2. damages in each year under baseline + pulse climate scenario
 ```{r}
-warming$unit_damage <- (warming$damage_pulse)/(35*10^9)
+warming$unit_damage <- (warming$damage_pulse_no_baseline)/(35*10^9)
 ```
 
 ```{r}
@@ -102,6 +104,8 @@ additional ton of CO2. The Obama Administration used a discount rate of 3% to di
 damages. Recently, New York State used a discount rate of 2%. Calculate and make a plot
 of the SCC (y-axis) against the discount rate (x-axis) for a reasonable range of discount rates.
 Explain the intuition for how the discount rate affects the SCC.
+
+
 
 
 ### 4. 
