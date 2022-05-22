@@ -14,19 +14,39 @@ library(here)
 ```
 
 ```{r}
-read_csv(here("damages.csv"))
-read_csv(here("warming.csv"))
+damage <- read_csv(here("damages.csv"))
+warming <- read_csv(here("warming.csv"))
 ```
 
 ### 1. 
 Using damages.csv, estimate a quadratic damage function relating the dollar value of damages to the change in global mean temperature. Estimate a model with a zero intercept because damages by construction must equal zero when there is no climate change. Plot your estimated damage function, overlaid with a scatterplot of the underlying data.
 
+```{r}
+#create linear regression 
+
+damage$warming_squared <- damage$warming^2
+quad_damage_model <- lm(damages ~ warming + warming_squared + 0, data = damage)
+
+# define function 
+quad_function <- function(warming){
+  harm <- quad_damage_model$coefficients[1]*warming + quad_damage_model$coefficients[2]*warming^2
+  return(harm)
+}
+```
 
 
+```{r}
+# visualize function and scatterplot graph
+ggplot(quad_damage_model, aes(warming, damages)) + geom_smooth(method = "lm", formula = y ~ x + I(x^2)) + geom_point() + 
+  theme_gray() +
+  labs(title = "Damage Function", x = "Warming in degrees C", y = "Damages in USD")
+```
 
 
 ### 2. 
 Use warming.csv and your estimated damage function to predict damages in each year under the baseline climate and the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time that arises from the pulse, and (4) the difference in damages over time from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).
+
+
 
 
 ### 3. 
