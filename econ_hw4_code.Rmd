@@ -105,6 +105,22 @@ damages. Recently, New York State used a discount rate of 2%. Calculate and make
 of the SCC (y-axis) against the discount rate (x-axis) for a reasonable range of discount rates.
 Explain the intuition for how the discount rate affects the SCC.
 
+```{r}
+# define SCC calculation function 
+SCC_calc <- function(principal, r, t){
+  r = r/100
+  SCC <- principal/((1+r)^t)
+  return(SCC)
+}
+```
+
+```{r}
+names(warming)[names(warming) == '...1'] <- 'time'
+discount_rates_SCC <- warming[, c("time", "unit_damage")]
+discount_rates_SCC$r_1 <- SCC_calc(warming$unit_damage,1,warming$time)
+total_SCC_1 <- sum(warming$SCC_1)
+```
+
 
 
 
