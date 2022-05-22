@@ -1,0 +1,18 @@
+---
+title: "econ_hw4"
+author: "Naomi Raal"
+date: "5/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+```
+
+```{r}
+read_csv(here("damages.csv"))
+read_csv(here("warming.csv"))
+```
+
