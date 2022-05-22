@@ -37,9 +37,9 @@ quad_function <- function(warming){
 
 ```{r}
 # visualize function and scatterplot graph
-ggplot(quad_damage_model, aes(warming, damages)) + geom_smooth(method = "lm", formula = y ~ x + I(x^2)) + geom_point() + 
+ggplot(quad_damage_model, aes(warming, damages)) + geom_smooth(method = "lm", formula = y ~ x + I(x^2), color = "brown") + geom_point(size = 0.8) + 
   theme_gray() +
-  labs(title = "Damage Function", x = "Warming in degrees C", y = "Damages in USD")
+  labs(title = "Damage Function", x = "Warming in degrees C", y = "Annual Damages in USD")
 ```
 
 
