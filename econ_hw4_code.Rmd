@@ -46,6 +46,53 @@ ggplot(quad_damage_model, aes(warming, damages)) + geom_smooth(method = "lm", fo
 ### 2. 
 Use warming.csv and your estimated damage function to predict damages in each year under the baseline climate and the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time that arises from the pulse, and (4) the difference in damages over time from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).
 
+1. damages in each year under baseline climate scenario
+```{r}
+warming$damage_baseline <- quad_function(warming$warming_baseline)
+```
+```{r}
+# visualize function and scatterplot graph
+ggplot(data = warming, aes(year, damage_baseline)) + 
+  geom_point(size = 0.8) + 
+  theme_gray() +
+  labs(title = "Damages under baseline", x = "time", y = "Annual Damages in USD")
+```
+
+2. damages in each year under baseline + pulse climate scenario
+```{r}
+warming$damage_pulse <- quad_function(warming$warming_pulse)
+warming$damage_baseline_pulse <- warming$damage_baseline + warming$damage_pulse
+```
+
+```{r}
+# visualize function and scatterplot graph
+ggplot(data = warming, aes(year, damage_baseline_pulse)) + 
+  geom_point(size = 0.8) + 
+  theme_gray() +
+  labs(title = "Damages under baseline with pulse", x = "time", y = "Annual Damages in USD")
+```
+3. damages in each year under pulse climate scenario
+
+```{r}
+# visualize function and scatterplot graph
+ggplot(data = warming, aes(year, damage_pulse)) + 
+  geom_point(size = 0.8) + 
+  theme_gray() +
+  labs(title = "Damages under pulse", x = "time", y = "Annual Damages in USD")
+```
+4. damages per ton of CO2
+2. damages in each year under baseline + pulse climate scenario
+```{r}
+warming$unit_damage <- (warming$damage_pulse)/(35*10^9)
+```
+
+```{r}
+# visualize function and scatterplot graph
+ggplot(data = warming, aes(year, unit_damage)) + 
+  geom_point(size = 0.8) + 
+  theme_gray() +
+  labs(title = "Damages from pulse per ton of CO2", x = "time", y = "Annual Damages in USD per ton CO2")
+```
 
 
 
