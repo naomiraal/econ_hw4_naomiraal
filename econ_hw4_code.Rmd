@@ -117,14 +117,33 @@ SCC_calc <- function(principal, r, t){
 ```{r}
 names(warming)[names(warming) == '...1'] <- 'time'
 discount_rates_SCC <- warming[, c("time", "unit_damage")]
-discount_rates_SCC$r_1 <- SCC_calc(warming$unit_damage,1,warming$time)
-total_SCC_1 <- sum(warming$SCC_1)
+```
+
+```{r}
+discount_rates_SCC$r_1 <- SCC_calc(discount_rates_SCC$unit_damage,1,discount_rates_SCC$time)
+total_SCC_1 <- sum(discount_rates_SCC$r_1)
 ```
 
 
+```{r}
+#Make a for loop to loop through r values
+r_vals <- seq(0,10,0.1)
+SCC_totals <- vector(mode = "numeric", length = length(r_vals))
+count = 1
+for(r in r_vals)
+{
+  
+  discount_rates_SCC$r <- SCC_calc(discount_rates_SCC$unit_damage,r,discount_rates_SCC$time)
+  SCC_totals[count] <- sum(discount_rates_SCC$r)
+  count = count + 1
+}
+```
+```{r}
+#plot discount rate vs. SCC
+plot(r_vals, SCC_totals, xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
+```
 
-
-
+This plot of discount rate (%) vs. the Social Cost of Carbon (SCC) is consistent with our expectations. We expect the SCC to decrease as the discount rate increases. This is because at a higher discount rate, the value of the future damages is less. Broadly, this means people care less about the future generations than the care about today. Therefore, it is more valuable to emit carbon today and the SCC is low. 
 
 ### 4. 
 The National Academies of Sciences, Engineering, and Medicine advised the government in a
