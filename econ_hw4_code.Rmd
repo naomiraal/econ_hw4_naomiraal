@@ -140,19 +140,42 @@ for(r in r_vals)
 ```
 ```{r}
 #plot discount rate vs. SCC
-plot(r_vals, SCC_totals, xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
+plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
 ```
 
 This plot of discount rate (%) vs. the Social Cost of Carbon (SCC) is consistent with our expectations. We expect the SCC to decrease as the discount rate increases. This is because at a higher discount rate, the value of the future damages is less. Broadly, this means people care less about the future generations than the care about today. Therefore, it is more valuable to emit carbon today and the SCC is low. 
 
 ### 4. 
-The National Academies of Sciences, Engineering, and Medicine advised the government in a
-2017 report to use the Ramsey Rule when discounting within the SCC calculation:
+The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation:
 r = ρ + ηg
-Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from
-above.
+Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from above.
 
+```{r}
+#calculate discount rate under Ramsey Rule
+rho <-0.001
+eta <- 2
+g <- 0.01
+r_Ramsey <- rho + eta*g
+```
+```{r}
+  discount_rates_SCC$r_Ramsey <- SCC_calc(discount_rates_SCC$unit_damage,(r_Ramsey*100),discount_rates_SCC$time)
+  SCC_Ramsey <- sum(discount_rates_SCC$r_Ramsey)
+```
 
+Under the Ramsey Rule when discounting within the SCC calculation:
+r = ρ + ηg
+Using ρ = 0.001, η = 2, and g = 0.01, r = `r r_Ramsey`
+and the SCC = $`r SCC_Ramsey` 
+Locate this point on your graph from above.
+
+Plot with Ramsey discount rate in blue and SCC under Ramsey rule in red. 
+
+```{r}
+#plot discount rate vs. SCC
+plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
+abline(v = (r_Ramsey*100), col="blue")
+abline(h = SCC_Ramsey, col="red")
+```
 ### 5. 
 Now suppose there are two possible climate policies that can be pursued. Policy A is business
 as usual and Policy B is to take immediate and strong action on climate change. Use these
