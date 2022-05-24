@@ -207,6 +207,7 @@ cost plus expected damages. Make a plot of total cost of Policy A and total cost
 against X. Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
 
 
+
 ### **6. Effect of a Risk Averse Society on Advice**
 Now suppose that society is risk averse. How do you think this would change your advice to
 Congress?
