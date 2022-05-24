@@ -120,21 +120,76 @@ SCC_calc <- function(principal, r, t){
 ```{r}
 names(warming)[names(warming) == '...1'] <- 'time'
 discount_rates_SCC <- warming[, c("time", "unit_damage")]
-discount_rates_SCC$r_1 <- SCC_calc(warming$unit_damage,1,warming$time)
-total_SCC_1 <- sum(warming$SCC_1)
+```
+
+```{r}
+discount_rates_SCC$r_1 <- SCC_calc(discount_rates_SCC$unit_damage,1,discount_rates_SCC$time)
+total_SCC_1 <- sum(discount_rates_SCC$r_1)
 ```
 
 
-
+<<<<<<< HEAD
 ### **4. Using the Ramsey Rule to find SCC**
 The National Academies of Sciences, Engineering, and Medicine advised the government in a
 2017 report to use the Ramsey Rule when discounting within the SCC calculation:
+=======
+```{r}
+#Make a for loop to loop through r values
+r_vals <- seq(0,10,0.1)
+SCC_totals <- vector(mode = "numeric", length = length(r_vals))
+count = 1
+for(r in r_vals)
+{
+  
+  discount_rates_SCC$r <- SCC_calc(discount_rates_SCC$unit_damage,r,discount_rates_SCC$time)
+  SCC_totals[count] <- sum(discount_rates_SCC$r)
+  count = count + 1
+}
+```
+```{r}
+#plot discount rate vs. SCC
+plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
+```
+
+This plot of discount rate (%) vs. the Social Cost of Carbon (SCC) is consistent with our expectations. We expect the SCC to decrease as the discount rate increases. This is because at a higher discount rate, the value of the future damages is less. Broadly, this means people care less about the future generations than the care about today. Therefore, it is more valuable to emit carbon today and the SCC is low. 
+
+### 4. 
+The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation:
+>>>>>>> 32599f1995ebea594d4bb898bb4e6d89e525c76a
 r = ρ + ηg
-Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from
-above.
+Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from above.
 
+```{r}
+#calculate discount rate under Ramsey Rule
+rho <-0.001
+eta <- 2
+g <- 0.01
+r_Ramsey <- rho + eta*g
+```
+```{r}
+  discount_rates_SCC$r_Ramsey <- SCC_calc(discount_rates_SCC$unit_damage,(r_Ramsey*100),discount_rates_SCC$time)
+  SCC_Ramsey <- sum(discount_rates_SCC$r_Ramsey)
+```
 
+Under the Ramsey Rule when discounting within the SCC calculation:
+r = ρ + ηg
+Using ρ = 0.001, η = 2, and g = 0.01, r = `r r_Ramsey`
+and the SCC = $`r SCC_Ramsey` 
+Locate this point on your graph from above.
+
+Plot with Ramsey discount rate in blue and SCC under Ramsey rule in red. 
+
+<<<<<<< HEAD
 ### **5. Comparing Potential Policy Outcomes**
+=======
+```{r}
+#plot discount rate vs. SCC
+plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
+abline(v = (r_Ramsey*100), col="blue")
+abline(h = SCC_Ramsey, col="red")
+```
+### 5. 
+>>>>>>> 32599f1995ebea594d4bb898bb4e6d89e525c76a
 Now suppose there are two possible climate policies that can be pursued. Policy A is business
 as usual and Policy B is to take immediate and strong action on climate change. Use these
 facts
