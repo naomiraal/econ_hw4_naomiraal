@@ -1,10 +1,12 @@
 ---
-title: "econ_hw4"
+title: "ESM 204 Assignment 4"
 author: "Naomi Raal, Virgina Pan, and Cam Audras"
 date: "5/22/2022"
 output: 
-  html_document: 
-    theme: cerulean
+  html_document:
+    theme: yeti
+    toc: yes
+    code_folding: hide # hide code
 ---
 
 ```{r setup, include=FALSE, echo=FALSE, mesage=FALSE}
@@ -18,7 +20,7 @@ damage <- read_csv(here("damages.csv"))
 warming <- read_csv(here("warming.csv"))
 ```
 
-### 1. 
+### **1. Damages vs. Change in Temperature**
 Using damages.csv, estimate a quadratic damage function relating the dollar value of damages to the change in global mean temperature. Estimate a model with a zero intercept because damages by construction must equal zero when there is no climate change. Plot your estimated damage function, overlaid with a scatterplot of the underlying data.
 
 ```{r}
@@ -43,10 +45,10 @@ ggplot(quad_damage_model, aes(warming, damages)) + geom_smooth(method = "lm", fo
 ```
 
 
-### 2. 
+### **2. Predicted Damages per Year**
 Use warming.csv and your estimated damage function to predict damages in each year under the baseline climate and the pulse scenario. Make four plots: (1) damages over time without the pulse, (2) damages over time with the pulse, (3) the difference in damages over time that arises from the pulse, and (4) the difference in damages over time from the pulse per ton of CO2 (you can assume that each ton of the pulse causes the same amount of damage).
 
-1. damages in each year under baseline climate scenario
+(1) damages in each year under baseline climate scenario
 ```{r}
 warming$damage_baseline <- quad_function(warming$warming_baseline)
 ```
@@ -58,7 +60,7 @@ ggplot(data = warming, aes(year, damage_baseline)) +
   labs(title = "Damages under baseline", x = "time", y = "Annual Damages in USD")
 ```
 
-2. damages in each year under baseline + pulse climate scenario
+(2) damages in each year under baseline + pulse climate scenario
 ```{r}
 warming$damage_pulse <- quad_function(warming$warming_pulse)
 ```
@@ -70,7 +72,8 @@ ggplot(data = warming, aes(year, damage_pulse)) +
   theme_gray() +
   labs(title = "Damages under baseline with pulse", x = "time", y = "Annual Damages in USD")
 ```
-3. damages in each year under pulse alone climate scenario
+
+(3) damages in each year under pulse alone climate scenario
 ```{r}
 warming$damage_pulse_no_baseline <- warming$damage_pulse-warming$damage_baseline
 ```
@@ -82,8 +85,8 @@ ggplot(data = warming, aes(year, damage_pulse_no_baseline)) +
   theme_gray() +
   labs(title = "Damages under pulse alone (no baseline)", x = "time", y = "Annual Damages in USD")
 ```
-4. damages per ton of CO2
-2. damages in each year under baseline + pulse climate scenario
+
+(4) difference in damages over time per ton of CO2
 ```{r}
 warming$unit_damage <- (warming$damage_pulse_no_baseline)/(35*10^9)
 ```
@@ -98,7 +101,7 @@ ggplot(data = warming, aes(year, unit_damage)) +
 
 
 
-### 3. 
+### **3. Investigating the Relationship between Discount Rate and SCC**
 The SCC is the present discounted value of the stream of future damages caused by one
 additional ton of CO2. The Obama Administration used a discount rate of 3% to discount
 damages. Recently, New York State used a discount rate of 2%. Calculate and make a plot
@@ -123,10 +126,7 @@ total_SCC_1 <- sum(warming$SCC_1)
 
 
 
-
-
-
-### 4. 
+### **4. Using the Ramsey Rule to find SCC**
 The National Academies of Sciences, Engineering, and Medicine advised the government in a
 2017 report to use the Ramsey Rule when discounting within the SCC calculation:
 r = ρ + ηg
@@ -134,7 +134,7 @@ Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on yo
 above.
 
 
-### 5. 
+### **5. Comparing Potential Policy Outcomes**
 Now suppose there are two possible climate policies that can be pursued. Policy A is business
 as usual and Policy B is to take immediate and strong action on climate change. Use these
 facts
@@ -152,7 +152,7 @@ cost plus expected damages. Make a plot of total cost of Policy A and total cost
 against X. Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
 
 
-### 6. 
+### **6. Effect of a Risk Averse Society on Advice**
 Now suppose that society is risk averse. How do you think this would change your advice to
 Congress?
 
