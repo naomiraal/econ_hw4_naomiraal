@@ -9,8 +9,8 @@ output:
     code_folding: hide # hide code
 ---
 
-```{r setup, include=FALSE, echo=FALSE, mesage=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(here)
 ```
@@ -105,8 +105,7 @@ ggplot(data = warming, aes(year, unit_damage)) +
 The SCC is the present discounted value of the stream of future damages caused by one
 additional ton of CO2. The Obama Administration used a discount rate of 3% to discount
 damages. Recently, New York State used a discount rate of 2%. Calculate and make a plot
-of the SCC (y-axis) against the discount rate (x-axis) for a reasonable range of discount rates.
-Explain the intuition for how the discount rate affects the SCC.
+of the SCC (y-axis) against the discount rate (x-axis) for a reasonable range of discount rates. Explain the intuition for how the discount rate affects the SCC.
 
 ```{r}
 # define SCC calculation function 
@@ -128,11 +127,6 @@ total_SCC_1 <- sum(discount_rates_SCC$r_1)
 ```
 
 
-<<<<<<< HEAD
-### **4. Using the Ramsey Rule to find SCC**
-The National Academies of Sciences, Engineering, and Medicine advised the government in a
-2017 report to use the Ramsey Rule when discounting within the SCC calculation:
-=======
 ```{r}
 #Make a for loop to loop through r values
 r_vals <- seq(0,10,0.1)
@@ -153,11 +147,14 @@ plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (
 
 This plot of discount rate (%) vs. the Social Cost of Carbon (SCC) is consistent with our expectations. We expect the SCC to decrease as the discount rate increases. This is because at a higher discount rate, the value of the future damages is less. Broadly, this means people care less about the future generations than the care about today. Therefore, it is more valuable to emit carbon today and the SCC is low. 
 
-### 4. 
+### **4. Using the Ramsey Rule to find SCC**
 The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation:
->>>>>>> 32599f1995ebea594d4bb898bb4e6d89e525c76a
+
 r = ρ + ηg
-Using ρ = 0.001, η = 2, and g = 0.01, what is the SCC? Locate this point on your graph from above.
+
+Using ρ = 0.001, η = 2, and g = 0.01
+
+What is the SCC? Locate this point on your graph from above.
 
 ```{r}
 #calculate discount rate under Ramsey Rule
@@ -172,45 +169,43 @@ r_Ramsey <- rho + eta*g
 ```
 
 Under the Ramsey Rule when discounting within the SCC calculation:
+
 r = ρ + ηg
-Using ρ = 0.001, η = 2, and g = 0.01, r = `r r_Ramsey`
-and the SCC = $`r SCC_Ramsey` 
-Locate this point on your graph from above.
+
+Using ρ = 0.001, η = 2, and g = 0.01:
+
+r = `r round(r_Ramsey,3)`
+
+SCC = $`r round(SCC_Ramsey,2)` 
 
 Plot with Ramsey discount rate in blue and SCC under Ramsey rule in red. 
 
-<<<<<<< HEAD
-### **5. Comparing Potential Policy Outcomes**
-=======
+
 ```{r}
 #plot discount rate vs. SCC
 plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
 abline(v = (r_Ramsey*100), col="blue")
 abline(h = SCC_Ramsey, col="red")
 ```
-### 5. 
->>>>>>> 32599f1995ebea594d4bb898bb4e6d89e525c76a
-Now suppose there are two possible climate policies that can be pursued. Policy A is business
-as usual and Policy B is to take immediate and strong action on climate change. Use these
-facts
-• If you undertake Policy A there are two possible outcomes. Either warming will occur as
-in the “baseline” (i.e. “no-pulse”) dataset above (this happens with probability 0.5) or
-warming each year will be 1.5 times that in the “baseline” dataset (with probability 0.5).
+
+### **5. Comparing Potential Policy Outcomes**
+Now suppose there are two possible climate policies that can be pursued. Policy A is business as usual and Policy B is to take immediate and strong action on climate change. Use these facts:
+
+If you undertake Policy A there are two possible outcomes. Either warming will occur as in the “baseline” (i.e. “no-pulse”) dataset above (this happens with probability 0.5) or warming each year will be 1.5 times that in the “baseline” dataset (with probability 0.5).
+
 Under Policy B, warming will continue until 2050 as in the “baseline” dataset, and then
 will stabilize at 1.29 degrees and stay that way forever.
-• Society is risk neutral
-• Use a discount rate of 2%
+
+Society is risk neutral
+
+Use a discount rate of 2%
+
 What is the expected present value of damages up to 2100 under Policy A? What is the
-expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy A
-costs zero and undertaking Policy B costs X. The total cost of a policy is the implementation
-cost plus expected damages. Make a plot of total cost of Policy A and total cost of Policy B
-against X. Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
-
-
+expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy 
+A costs zero and undertaking Policy B costs X. The total cost of a policy is the implementation cost plus expected damages. Make a plot of total cost of Policy A and total cost of Policy B against X. Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
 
 
 ### **6. Effect of a Risk Averse Society on Advice**
-Now suppose that society is risk averse. How do you think this would change your advice to
-Congress?
+Now suppose that society is risk averse. How do you think this would change your advice to Congress?
 
 
