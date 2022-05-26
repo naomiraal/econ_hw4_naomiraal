@@ -13,17 +13,11 @@ output:
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(tidyverse)
 library(here)
-library(janitor)
-library(thematic)
-library(scales)
-library(equatiomatic)
 ```
 
 ```{r}
 damage <- read_csv(here("damages.csv"))
-warming <- read_csv(here("warming.csv")) %>% 
-  clean_names() %>% 
-  select(-x1)
+warming <- read_csv(here("warming.csv"))
 ```
 
 ### **1. Damages vs. Change in Temperature**
@@ -31,9 +25,8 @@ Using damages.csv, estimate a quadratic damage function relating the dollar valu
 
 ```{r}
 #create linear regression 
-damage$warming_squared <- damage$warming^2
-# Solve the issue
 
+damage$warming_squared <- damage$warming^2
 quad_damage_model <- lm(damages ~ warming + warming_squared + 0, data = damage)
 
 # define function 
@@ -116,7 +109,7 @@ of the SCC (y-axis) against the discount rate (x-axis) for a reasonable range of
 
 ```{r}
 # define SCC calculation function 
-SCC_calc <- function(principal, r, t, year){
+SCC_calc <- function(principal, r, t){
   r = r/100
   SCC <- principal/((1+r)^t)
   return(SCC)
@@ -124,12 +117,12 @@ SCC_calc <- function(principal, r, t, year){
 ```
 
 ```{r}
-names(warming)[names(warming) == '...1'] <- 'year'
-discount_rates_SCC <- warming[, c("year", "unit_damage")]
+names(warming)[names(warming) == '...1'] <- 'time'
+discount_rates_SCC <- warming[, c("time", "unit_damage")]
 ```
 
 ```{r}
-discount_rates_SCC$r_1 <- SCC_calc(discount_rates_SCC$unit_damage,1,discount_rates_SCC$year)
+discount_rates_SCC$r_1 <- SCC_calc(discount_rates_SCC$unit_damage,1,discount_rates_SCC$time)
 total_SCC_1 <- sum(discount_rates_SCC$r_1)
 ```
 
@@ -142,7 +135,7 @@ count = 1
 for(r in r_vals)
 {
   
-  discount_rates_SCC$r <- SCC_calc(discount_rates_SCC$unit_damage,r,discount_rates_SCC$year)
+  discount_rates_SCC$r <- SCC_calc(discount_rates_SCC$unit_damage,r,discount_rates_SCC$time)
   SCC_totals[count] <- sum(discount_rates_SCC$r)
   count = count + 1
 }
@@ -171,7 +164,7 @@ g <- 0.01
 r_Ramsey <- rho + eta*g
 ```
 ```{r}
-  discount_rates_SCC$r_Ramsey <- SCC_calc(discount_rates_SCC$unit_damage,(r_Ramsey*100),discount_rates_SCC$year)
+  discount_rates_SCC$r_Ramsey <- SCC_calc(discount_rates_SCC$unit_damage,(r_Ramsey*100),discount_rates_SCC$time)
   SCC_Ramsey <- sum(discount_rates_SCC$r_Ramsey)
 ```
 
@@ -208,84 +201,6 @@ Society is risk neutral
 Use a discount rate of 2%
 
 What is the expected present value of damages up to 2100 under Policy A? What is the
-expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy 
+expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy
 A costs zero and undertaking Policy B costs X. The total cost of a policy is the implementation cost plus expected damages. Make a plot of total cost of Policy A and total cost of Policy B against X. Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
-
-```{r}
-# Estimate PV for the Policy A scenario, discount rate is 2%
-discount_rate <- 2
-# Need to create a new dataset with the damages and PV for both baseline and 1.5X warming 
-damages_pol_a <- warming %>% 
-  select(year, warming_baseline, damage_baseline) %>%
-  mutate(damages_1.5 = quad_function(1.5*warming_baseline)) %>%
-  mutate(pv_baseline =
-           SCC_calc(discount_rate, damage_baseline,
-                            warming$year, 2022)) %>%
-  mutate(pv_1.5 = SCC_calc(discount_rate, damages_1.5,
-                            warming$year, 2022))
-# Now we need to calculate the probabilities. 
-prob_base <- 0.5
-prob_1.5 <- 0.5
-# Sum the pv for each 
-sum_base <- sum(damages_pol_a$pv_baseline)
-sum_1.5 <- sum(damages_pol_a$pv_1.5)
-# Scale these by probability
-expected_value_a <- (sum_base * prob_base) + (sum_1.5 * prob_1.5)
-#3023245 billion dollars (I think) CHECK THIS NUMBER 
-# Now do this for policy B
-damages_policy_b <- warming %>% 
-  select(year, warming_baseline) 
-for (i in 30:79){
-  damages_policy_b$warming_baseline[i]=1.29
-}
-# Warming locked at 1.29 after 2050
-damages_policy_b <- damages_policy_b %>% 
-  mutate(damages_b = quad_function(warming_baseline)) %>%
-  mutate(pv_b =
-           SCC_calc(discount_rate, damages_b,
-                            warming$year, 2022))
-prob_b <- 1
-sum_b <- sum(damages_policy_b$pv_b)  
-expected_value_b <- (sum_b * prob_b)
-```
-
-- **A: Present Value of Damages under Policy A =** $`r round(expected_value_a, 0)` billion
-
-- **B: Present Value of Damages under Policy B =** $`r round(expected_value_b, 0)` billion
-
-*Assume: Society is risk neutral and the discount rate is 2%. Policy A costs $0 and Policy B costs $X to implement. Total cost is implementation cost + damages.*
-
-#### **Figure 6: Total Cost by Policy Pathway**
-
-```{r}
-# Now we need the total cost 
-# Cost to implement A is just the expected PV of the damages 
-cost_a <- function(x){expected_value_a}
-# B adds in the implementation cost (X) 
-cost_b <- function(x){expected_value_b + x}
-# For the cost of b to equal the cost of a, implementation cost would have to be $2236574 billion: 
-x_equal <- expected_value_a - expected_value_b
-# Now create a new data frame, including a vector of possible costs (in billions) based on difference calcualted above 
-cost <- c(0,3e5,6e5,9e5,12e5,15e5,18e5,21e5,24e5,27e5,30e5)
-cost_df <- data.frame(cost) %>% 
-  mutate(cost_a = cost_a(cost)) %>% 
-  mutate(cost_b = cost_b(cost)) %>% 
-  pivot_longer(cols = c(cost_a, cost_b), 
-               names_to = 'policy', values_to = 'total_cost') %>%
-  mutate(policy = case_when(policy == "cost_a" ~ "Policy A",
-                            policy == "cost_b" ~ "Policy B"))
-ggplot(data = cost_df, aes(x = cost, y = total_cost)) +
-  geom_line(aes(color = policy)) +
-  geom_vline(xintercept = x_equal, color = 'darkseagreen', linetype = "dashed") +
-  geom_label(aes(x = 2000000, 
-                 label = "Implementation Cost Intercept = $2,235,574 billion",
-                 y = 1500000), color = "darkseagreen", angle = 90) +
-  labs(x = "Implementation Cost ($ billions)", y = "Total Cost ($ billions)")
-  
-```
-
-**Takeaway:** Congress should adopt **Policy B** unless implementation costs are greater than $`r round(x_equal, 0)` billion. Otherwise, they should adopt Policy A *assuming decisions are made to minimize cost and that total cost of Policy A is the present value of damages through 2100 and total cost of Policy B is the sum of the implementation cost and the present value of those damages through 2100.*
-
-### **6. Effect of a Risk Averse Society on Advice**
-Now suppose that society is risk averse. How do you think this would change your advice to Congress?
 
