@@ -249,7 +249,9 @@ policy_b_warming <- function(year)
   }
   return(warming)
 }
-  
+
+#how to pass arg type? 
+warming$warming_policy_b <- policy_b_warming(warming$year)
 ```
 
 
