@@ -204,3 +204,52 @@ What is the expected present value of damages up to 2100 under Policy A? What is
 expected present value of damages up to 2100 under Policy B? Suppose undertaking Policy
 A costs zero and undertaking Policy B costs X. The total cost of a policy is the implementation cost plus expected damages. Make a plot of total cost of Policy A and total cost of Policy B against X. Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
 
+```{r}
+discount_rate <- 2
+
+#Policy A outcomes:
+
+#scenario 1
+#warming occurs as in the "baseline"/"no pulse" dataset (Probability 0.5)
+#warming_baseline --> damage_baseline --> calc SCC
+warming$SCC_baseline <- SCC_calc(warming$damage_baseline,discount_rate,warming$time)
+total_SCC_baseline <- sum(warming$SCC_baseline)
+
+#scenario 2
+#warming each year will be 1.5 times that in the “baseline” dataset (with probability 0.5)
+#warming_baseline*1.5 --> quad_function() --> damages --> calc SCC
+warming$warming_baseline_1.5 <- 1.5*(warming$warming_baseline)
+warming$damage_baseline_1.5 <- quad_function(warming$warming_baseline_1.5)
+warming$SCC_baseline_1.5 <- SCC_calc(warming$damage_baseline_1.5,discount_rate,warming$time)
+total_SCC_baseline_1.5 <- sum(warming$SCC_baseline_1.5)
+
+#Expected value under policy A:
+prob_scenario_1 <- 0.5
+prob_scenario_2 <- 0.5
+policy_A_expected_value<- (prob_scenario_1 * total_SCC_baseline) + (prob_scenario_2 * total_SCC_baseline_1.5)
+
+```
+
+```{r}
+# Under Policy B, warming will continue until 2050 as in the “baseline” dataset, and then will stabilize at 1.29 degrees and stay that way forever.
+policy_b_warming <- function(year)
+{
+  if(2022 <= year && year <= 2050)
+  {
+    warming <- warming$warming_baseline[year-2021]
+  }
+  else if (2050 < year && year <= 2100)
+  {
+    warming <- 1.29
+  }
+  else
+  {
+    warming <- -99999
+    count = count + 1
+  }
+  return(warming)
+}
+  
+```
+
+
