@@ -145,7 +145,7 @@ for(r in r_vals)
 plot(r_vals, SCC_totals, main = "Discount rate vs. SCC", xlab = "discount rate (%)", ylab = "Social Cost of Carbon (SCC) in USD")
 ```
 
-This plot of discount rate (%) vs. the Social Cost of Carbon (SCC) is consistent with our expectations. We expect the SCC to decrease as the discount rate increases. This is because at a higher discount rate, the value of the future damages is less. Broadly, this means people care less about the future generations than the care about today. Therefore, it is more valuable to emit carbon today and the SCC is low. 
+This plot of discount rate (%) vs. the Social Cost of Carbon (SCC) is consistent with our expectations. We expect the SCC to decrease as the discount rate increases. This is because at a higher discount rate, the value of the future damages is less. Broadly, this means people care less about the future generations than the care about today. Therefore, it is more valuable to emit carbon today and the SCC is low when the discount rate is high. 
 
 ### **4. Using the Ramsey Rule to find SCC**
 The National Academies of Sciences, Engineering, and Medicine advised the government in a 2017 report to use the Ramsey Rule when discounting within the SCC calculation:
@@ -168,7 +168,7 @@ r_Ramsey <- rho + eta*g
   SCC_Ramsey <- sum(discount_rates_SCC$r_Ramsey)
 ```
 
-Under the Ramsey Rule when discounting within the SCC calculation:
+SCC calculation Under the Ramsey Rule:
 
 r = ρ + ηg
 
@@ -226,7 +226,7 @@ total_SCC_baseline_1.5 <- sum(warming$SCC_baseline_1.5)
 #Expected value under policy A:
 prob_scenario_1 <- 0.5
 prob_scenario_2 <- 0.5
-policy_A_expected_value<- (prob_scenario_1 * total_SCC_baseline) + (prob_scenario_2 * total_SCC_baseline_1.5)
+policy_A_expected_cost<- (prob_scenario_1 * total_SCC_baseline) + (prob_scenario_2 * total_SCC_baseline_1.5)
 
 ```
 
@@ -250,8 +250,76 @@ policy_b_warming <- function(year)
   return(warming)
 }
 
-#how to pass arg type? 
-warming$warming_policy_b <- policy_b_warming(warming$year)
+#warming_policy_b --> quad_function() --> damages --> calc SCC
+warming_size <- dim(warming)
+index_i <-seq(1,warming_size[1],1)
+for(i in index_i)
+{
+  warming$warming_policy_b[i] <- policy_b_warming(warming$year[i])
+}
+
+warming$damage_policy_b <- quad_function(warming$warming_policy_b)
+warming$SCC_policy_b <- SCC_calc(warming$damage_policy_b,discount_rate,warming$time)
+total_SCC_policy_b <- sum(warming$SCC_policy_b)
+
+#Expected value under policy B (only 1 outcome certain to happen)
+policy_B_expected_cost <- total_SCC_policy_b
 ```
+
+The expected present value of damages up to 2100 under Policy A: $ `r round(policy_A_expected_cost, 2)`
+
+The expected present value of damages up to 2100 under Policy B: $ `r round(policy_B_expected_cost, 2)`
+
+```{r}
+#Suppose undertaking Policy A costs zero and undertaking Policy B costs X. The total cost of a policy is the implementation cost plus expected damages. 
+
+X <- seq(10^13,10^16,10^12)
+policy_A_imp_cost <- 0
+policy_B_imp_cost <- X
+
+policy_A_total_cost <-  policy_A_imp_cost + policy_A_expected_cost
+policy_B_total_cost <- policy_B_imp_cost + policy_B_expected_cost
+```
+
+```{r}
+#Make a plot of total cost of Policy A and total cost of Policy B against X. 
+policy_A_total_cost_vector <- rep(policy_A_total_cost,each=length(policy_B_total_cost))
+plot(X, policy_B_total_cost, main = "Total Cost of Policy A & B vs. Implementation Cost of Policy B", xlab = "Implementation Cost of Policy B ($X)", ylab = "Total Policy Cost ($)", xlim=c(0, max(X)), ylim=c(min(policy_B_total_cost), max(policy_B_total_cost)), type="l",col="red")
+lines(X,policy_A_total_cost_vector,col="green")
+
+# find intersection of policy costs
+x_equal_policies <- policy_A_total_cost - policy_B_expected_cost
+#abline(v = x_equal_policies, col="blue", lty = "dashed")
+#abline(h = (policy_A_total_cost + 10^15), col="green", lty = "dashed")
+```
+
+Plot with implementation cost of policy B ($X) on the x-axis and total policy cost (implementation cost + expected damages cost) of policy A (green line) and policy B (red line) on the y-axis
+
+Suppose Congress wants to undertake the policy with the lower total cost. Use your graph to advise Congress.
+
+Congress should choose policy B if policy B's implementation cost is less than $ `r round(x_equal_policies,2)` (to the left of where the total cost lines intersect). 
+
+Congress should and choose policy A if policy B's implementation cost is greater than $ `r round(x_equal_policies,2)` (to the right of where the total cost lines intersect).
+
+Congress would be would be open to choosing either policy if policy B's implementation cost is exactly $ `r round(x_equal_policies,2)` (exactly at the intersection of policy costs).
+
+### **6. Effect of a Risk Averse Society on Advice**
+Now suppose that society is risk averse. How do you think this would change your advice to Congress?
+
+```{r}
+#Make a plot of total cost of Policy A and total cost of Policy B against X. 
+policy_A_total_cost_vector <- rep(policy_A_total_cost,each=length(policy_B_total_cost))
+plot(X, policy_B_total_cost, main = "Total Cost of Policy A & B vs. Implementation Cost of Policy B", xlab = "Implementation Cost of Policy B ($X)", ylab = "Total Policy Cost ($)", xlim=c(0, max(X)), ylim=c(min(policy_B_total_cost), max(policy_B_total_cost)), type="l",col="red")
+lines(X,policy_A_total_cost_vector,col="green")
+
+# One possible total cost of Policy A if society is risk adverse
+abline(h = (policy_A_total_cost + 10^15), col="green", lty = "dashed")
+```
+
+Plot with implementation cost of policy B ($X) on the x-axis and total policy cost (implementation cost + expected damages cost) of policy A (green solid line), policy A in a risk averse society (dotted green line) and policy B (red line) on the y-axis.
+
+
+If society is risk averse, than the expected costs of policy A would be greater. As such, the cost of policy A would shift up in the graph above (example: green dotted line). This would make policy B more attractive, up to a certain implementation cost (which would be higher than $ `r round(x_equal_policies,2)`. Basically, Congress is more likely to choose Policy B in a risk averse society. 
+
 
 
